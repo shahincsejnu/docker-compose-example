@@ -1,0 +1,47 @@
+# a docker-compose must always start by the version tag
+# i used 3 because it's the last version at this time
+
+version: "3"
+
+# docker-compose works with services
+# 1 service = 1 container
+# a service maybe a server, a client, a databae etc
+# use the keyword 'services' to start to create services.
+
+services:
+    # we want to create two services, a server and a client
+    
+    # we use the keyword 'server' for the server
+    server:
+        # the 'build' keyword will allow to define the path of the Dockefile to use to create the image that will allow us to execute the service
+        # here 'server/' corresponds to the path to the server folder that contains the Dockerfile to use
+        build: server/
+        
+        # the following command will execute 'python ./server.py'
+        command: python ./server .py
+        
+        # the port we defined is 8080
+        # if we want to accress the server from outside the container we must share the content port with outside(our computer's port)
+        # syntax is as follows : [port_we_want_on_our_machine]:[port_we_want_to_retrieve_in_the_container]
+        # we broadcast the server
+        ports:
+            - 8080:8080
+
+
+    # second service (container) : the client
+    client:
+        # here 'client/' corresponds the path to the cliend folder that contains the Docerfile to use
+        build: client/
+        
+        # the command to execute once the image is created, the following command will execute 'python ./client.py'
+
+        command: python ./client.py
+        
+        # the keyword 'network_mode' is used to define the network type
+        # here we define that the container can access to the 'localhost' of the computer
+        network_mode: host
+
+        # the keyword 'depends_on' allows you to define whether the service should wait until other services are ready before launching
+        # here, we want the 'client' service to wait until the 'server' service is ready
+        depends_on:
+            - server
